@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0](https://github.com/databricks/appkit/compare/v0.3.0...v0.4.0) (2026-01-29)
+
+* embed `appkit` CLI and AI-targeted docs into the `appkit` and `appkit-ui` packages ([#64](https://github.com/databricks/appkit/issues/64)) ([58794e8](https://github.com/databricks/appkit/commit/58794e80a3b56e02d806507e4fbfd5519bc7aa02))
+
 ## [0.3.0](https://github.com/databricks/appkit/compare/v0.2.0...v0.3.0) (2026-01-22)
 
 * add .obo conventions on sql files ([#61](https://github.com/databricks/appkit/issues/61)) ([00a74c1](https://github.com/databricks/appkit/commit/00a74c136ded16b17ae756e0f99f7d0efa3e9fda))
