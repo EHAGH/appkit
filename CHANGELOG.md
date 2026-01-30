@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1](https://github.com/databricks/appkit/compare/v0.4.0...v0.4.1) (2026-01-30)
+
+* Revert "chore: bump packages in the template (#70)" (#71) ([268c8cf](https://github.com/databricks/appkit/commit/268c8cf52a243abc9f17f96425cfbdf01809e471)), closes [#70](https://github.com/databricks/appkit/issues/70) [#71](https://github.com/databricks/appkit/issues/71)
+
 ## [0.4.0](https://github.com/databricks/appkit/compare/v0.3.0...v0.4.0) (2026-01-29)
 
 * embed `appkit` CLI and AI-targeted docs into the `appkit` and `appkit-ui` packages ([#64](https://github.com/databricks/appkit/issues/64)) ([58794e8](https://github.com/databricks/appkit/commit/58794e80a3b56e02d806507e4fbfd5519bc7aa02))
