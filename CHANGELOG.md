@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1](https://github.com/databricks/appkit/compare/v0.5.0...v0.5.1) (2026-02-02)
+
+* query reads on dev-remote ([#72](https://github.com/databricks/appkit/issues/72)) ([34bb1dc](https://github.com/databricks/appkit/commit/34bb1dc6fa6a220ecb624b408701c3f73dddeac4))
+
 ## [0.5.0](https://github.com/databricks/appkit/compare/v0.4.1...v0.5.0) (2026-01-30)
 
 * appkit exposed apis ([#69](https://github.com/databricks/appkit/issues/69)) ([822d98e](https://github.com/databricks/appkit/commit/822d98e2f607c33fd7aa72166aca86c6d0fdaea3))
