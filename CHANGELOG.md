@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.3](https://github.com/databricks/appkit/compare/v0.5.2...v0.5.3) (2026-02-10)
+
+* run typegen automatically via npm lifecycle hooks ([#92](https://github.com/databricks/appkit/issues/92)) ([80b7a96](https://github.com/databricks/appkit/commit/80b7a96b330bbe8949a0ce981d22680458b930bf))
+
 ## [0.5.2](https://github.com/databricks/appkit/compare/v0.5.1...v0.5.2) (2026-02-04)
 
 * skip type generation when queries directory is missing ([#84](https://github.com/databricks/appkit/issues/84)) ([76b3aa0](https://github.com/databricks/appkit/commit/76b3aa00d2ad4985330c60b4849a3ba4303c9591))
