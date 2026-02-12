@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4](https://github.com/databricks/appkit/compare/v0.5.3...v0.5.4) (2026-02-12)
+
+* surface SQL error messages in typegen DESCRIBE failures ([#94](https://github.com/databricks/appkit/issues/94)) ([75d94e7](https://github.com/databricks/appkit/commit/75d94e799ba0db79bf6e8c603b0346822ddb4560))
+
 ## [0.5.3](https://github.com/databricks/appkit/compare/v0.5.2...v0.5.3) (2026-02-10)
 
 * run typegen automatically via npm lifecycle hooks ([#92](https://github.com/databricks/appkit/issues/92)) ([80b7a96](https://github.com/databricks/appkit/commit/80b7a96b330bbe8949a0ce981d22680458b930bf))
