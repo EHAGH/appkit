@@ -3,6 +3,17 @@ const typedocSidebar: SidebarsConfig = {
   items: [
     {
       type: "category",
+      label: "Enumerations",
+      items: [
+        {
+          type: "doc",
+          id: "api/appkit/Enumeration.ResourceType",
+          label: "ResourceType"
+        }
+      ]
+    },
+    {
+      type: "category",
       label: "Classes",
       items: [
         {
@@ -42,6 +53,11 @@ const typedocSidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/appkit/Class.ResourceRegistry",
+          label: "ResourceRegistry"
+        },
+        {
+          type: "doc",
           id: "api/appkit/Class.ServerError",
           label: "ServerError"
         },
@@ -78,6 +94,26 @@ const typedocSidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/appkit/Interface.PluginManifest",
+          label: "PluginManifest"
+        },
+        {
+          type: "doc",
+          id: "api/appkit/Interface.ResourceEntry",
+          label: "ResourceEntry"
+        },
+        {
+          type: "doc",
+          id: "api/appkit/Interface.ResourceFieldEntry",
+          label: "ResourceFieldEntry"
+        },
+        {
+          type: "doc",
+          id: "api/appkit/Interface.ResourceRequirement",
+          label: "ResourceRequirement"
+        },
+        {
+          type: "doc",
           id: "api/appkit/Interface.StreamExecutionSettings",
           label: "StreamExecutionSettings"
         },
@@ -85,6 +121,11 @@ const typedocSidebar: SidebarsConfig = {
           type: "doc",
           id: "api/appkit/Interface.TelemetryConfig",
           label: "TelemetryConfig"
+        },
+        {
+          type: "doc",
+          id: "api/appkit/Interface.ValidationResult",
+          label: "ValidationResult"
         }
       ]
     },
@@ -94,8 +135,18 @@ const typedocSidebar: SidebarsConfig = {
       items: [
         {
           type: "doc",
+          id: "api/appkit/TypeAlias.ConfigSchema",
+          label: "ConfigSchema"
+        },
+        {
+          type: "doc",
           id: "api/appkit/TypeAlias.IAppRouter",
           label: "IAppRouter"
+        },
+        {
+          type: "doc",
+          id: "api/appkit/TypeAlias.ResourcePermission",
+          label: "ResourcePermission"
         }
       ]
     },
@@ -128,6 +179,16 @@ const typedocSidebar: SidebarsConfig = {
           type: "doc",
           id: "api/appkit/Function.getExecutionContext",
           label: "getExecutionContext"
+        },
+        {
+          type: "doc",
+          id: "api/appkit/Function.getPluginManifest",
+          label: "getPluginManifest"
+        },
+        {
+          type: "doc",
+          id: "api/appkit/Function.getResourceRequirements",
+          label: "getResourceRequirements"
         },
         {
           type: "doc",

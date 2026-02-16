@@ -31,6 +31,22 @@ export {
 // Plugin authoring
 export { Plugin, toPlugin } from "./plugin";
 export { analytics, server } from "./plugins";
+// Registry types and utilities for plugin manifests
+export type {
+  ConfigSchema,
+  PluginManifest,
+  ResourceEntry,
+  ResourceFieldEntry,
+  ResourcePermission,
+  ResourceRequirement,
+  ValidationResult,
+} from "./registry";
+export {
+  getPluginManifest,
+  getResourceRequirements,
+  ResourceRegistry,
+  ResourceType,
+} from "./registry";
 // Telemetry (for advanced custom telemetry)
 export {
   type Counter,
