@@ -51,6 +51,8 @@ This Software contains code from the following open source projects:
 | [@tanstack/react-table](https://www.npmjs.com/package/@tanstack/react-table) | 8.21.3 | MIT | https://tanstack.com/table |
 | [@tanstack/react-virtual](https://www.npmjs.com/package/@tanstack/react-virtual) | 3.13.12 | MIT | https://tanstack.com/virtual |
 | [@types/semver](https://www.npmjs.com/package/@types/semver) | 7.7.1 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/semver |
+| [ajv](https://www.npmjs.com/package/ajv) | 6.12.6, 8.17.1 | MIT | https://ajv.js.org |
+| [ajv-formats](https://www.npmjs.com/package/ajv-formats) | 2.1.1, 3.0.1 | MIT | https://github.com/ajv-validator/ajv-formats#readme |
 | [apache-arrow](https://www.npmjs.com/package/apache-arrow) | 21.1.0 | Apache-2.0 | https://arrow.apache.org/js/ |
 | [class-variance-authority](https://www.npmjs.com/package/class-variance-authority) | 0.7.1 | Apache-2.0 | https://github.com/joe-bell/cva#readme |
 | [clsx](https://www.npmjs.com/package/clsx) | 2.1.1 | MIT | https://github.com/lukeed/clsx#readme |

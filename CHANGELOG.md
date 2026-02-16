@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0](https://github.com/databricks/appkit/compare/v0.5.4...v0.6.0) (2026-02-16)
+
+### appkit
+
+* **appkit:** plugin manifest definition ([#82](https://github.com/databricks/appkit/issues/82)) ([b40f5ca](https://github.com/databricks/appkit/commit/b40f5ca2e7a9214939c2d9bd9cea6be6bb993d53))
+
 ## [0.5.4](https://github.com/databricks/appkit/compare/v0.5.3...v0.5.4) (2026-02-12)
 
 * surface SQL error messages in typegen DESCRIBE failures ([#94](https://github.com/databricks/appkit/issues/94)) ([75d94e7](https://github.com/databricks/appkit/commit/75d94e799ba0db79bf6e8c603b0346822ddb4560))
