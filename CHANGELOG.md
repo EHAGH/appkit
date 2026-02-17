@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0](https://github.com/databricks/appkit/compare/v0.6.0...v0.7.0) (2026-02-17)
+
+* introduce Lakebase Autoscaling driver ([#98](https://github.com/databricks/appkit/issues/98)) ([27b1848](https://github.com/databricks/appkit/commit/27b184886b2ab15c73f3d46f5ff9e9c6d8806c71))
+
 ## [0.6.0](https://github.com/databricks/appkit/compare/v0.5.4...v0.6.0) (2026-02-16)
 
 ### appkit
