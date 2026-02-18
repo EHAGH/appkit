@@ -1,7 +1,8 @@
 #!/usr/bin/env tsx
 /**
- * Run after npm publish. Syncs the template to the new version (with retry),
- * then commits, tags template-vX.X.X, and pushes.
+ * Syncs the template to the given version (with retry), then commits, tags
+ * template-vX.X.X, and pushes. Used by the Release workflow (sync-template job
+ * in .github/workflows/release.yml) and for manual runs.
  */
 
 import { spawnSync } from "node:child_process";
@@ -75,7 +76,7 @@ if (installExit !== 0) {
 // 3. Git add, commit, tag, push
 const commands: [string, string[]][] = [
   ["git", ["add", "template/package.json", "template/package-lock.json"]],
-  ["git", ["commit", "-m", `chore: sync template to v${version}`]],
+  ["git", ["commit", "-m", `chore: sync template to v${version} [skip ci]`]],
   ["git", ["tag", `template-v${version}`]],
   ["git", ["push", "origin", "main", "--follow-tags"]],
 ];
