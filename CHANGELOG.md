@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.4](https://github.com/databricks/appkit/compare/v0.7.3...v0.7.4) (2026-02-18)
+
+* typegen command ([#119](https://github.com/databricks/appkit/issues/119)) ([8c3735c](https://github.com/databricks/appkit/commit/8c3735c6b27c5e5cbacb81363ccaf4f6acbfd185))
+
 ## [0.7.3](https://github.com/databricks/appkit/compare/v0.7.2...v0.7.3) (2026-02-18)
 
 * release `@databricks/lakebase` correctly, fix `appkit` dependency ([#111](https://github.com/databricks/appkit/issues/111)) ([5b6856a](https://github.com/databricks/appkit/commit/5b6856a6b42680a671cfc3e99eab3bef72803fd1))
