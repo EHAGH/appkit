@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.3](https://github.com/databricks/appkit/compare/v0.7.2...v0.7.3) (2026-02-18)
+
+* release `@databricks/lakebase` correctly, fix `appkit` dependency ([#111](https://github.com/databricks/appkit/issues/111)) ([5b6856a](https://github.com/databricks/appkit/commit/5b6856a6b42680a671cfc3e99eab3bef72803fd1))
+
 ## [0.7.2](https://github.com/databricks/appkit/compare/v0.7.1...v0.7.2) (2026-02-18)
 
 * template sync ([#109](https://github.com/databricks/appkit/issues/109)) ([f250016](https://github.com/databricks/appkit/commit/f250016b28e24e3ce56d09a0a3d95088a689a943))
