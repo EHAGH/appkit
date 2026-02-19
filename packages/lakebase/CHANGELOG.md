@@ -2,6 +2,12 @@
 
 All notable changes to @databricks/lakebase will be documented in this file.
 
+## [0.1.2](https://github.com/databricks/appkit/compare/lakebase-v0.1.1...lakebase-v0.1.2) (2026-02-19)
+
+### Bug Fixes
+
+* **lakebase:** Update instructions for manually obtaining `LAKEBASE_ENDPOINT` ([#121](https://github.com/databricks/appkit/issues/121)) ([5d43af4](https://github.com/databricks/appkit/commit/5d43af4877483d93ef9b77982f4e2c5158e36d81))
+
 ## [0.1.1](https://github.com/databricks/appkit/compare/lakebase-v0.1.0...lakebase-v0.1.1) (2026-02-18)
 
 ### Bug Fixes
