@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0](https://github.com/databricks/appkit/compare/v0.7.4...v0.8.0) (2026-02-23)
+
+* allow overriding vite client port ([#124](https://github.com/databricks/appkit/issues/124)) ([6142ec9](https://github.com/databricks/appkit/commit/6142ec956b996b6edb7e71379328ec42be4a2aa9))
+
 ## [0.7.4](https://github.com/databricks/appkit/compare/v0.7.3...v0.7.4) (2026-02-18)
 
 * typegen command ([#119](https://github.com/databricks/appkit/issues/119)) ([8c3735c](https://github.com/databricks/appkit/commit/8c3735c6b27c5e5cbacb81363ccaf4f6acbfd185))
