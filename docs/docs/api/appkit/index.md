@@ -8,7 +8,7 @@ plugin architecture, and React integration.
 | Enumeration | Description |
 | ------ | ------ |
 | [RequestedClaimsPermissionSet](Enumeration.RequestedClaimsPermissionSet.md) | Permission set for Unity Catalog table access |
-| [ResourceType](Enumeration.ResourceType.md) | Supported resource types that plugins can depend on. Each type has its own set of valid permissions. |
+| [ResourceType](Enumeration.ResourceType.md) | Resource types from schema $defs.resourceType.enum |
 
 ## Classes
 
@@ -53,6 +53,7 @@ plugin architecture, and React integration.
 | [ConfigSchema](TypeAlias.ConfigSchema.md) | Configuration schema definition for plugin config. Re-exported from the standard JSON Schema Draft 7 types. |
 | [IAppRouter](TypeAlias.IAppRouter.md) | Express router type for plugin route registration |
 | [ResourcePermission](TypeAlias.ResourcePermission.md) | Union of all possible permission levels across all resource types. |
+| [ToPlugin](TypeAlias.ToPlugin.md) | - |
 
 ## Variables
 
