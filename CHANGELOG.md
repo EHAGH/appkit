@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0](https://github.com/databricks/appkit/compare/v0.8.0...v0.9.0) (2026-02-24)
+
+* add plugin commands ([#110](https://github.com/databricks/appkit/issues/110)) ([ec5481d](https://github.com/databricks/appkit/commit/ec5481dea46c5a6f2d85e5942e31fa0582caefbe))
+
 ## [0.8.0](https://github.com/databricks/appkit/compare/v0.7.4...v0.8.0) (2026-02-23)
 
 * allow overriding vite client port ([#124](https://github.com/databricks/appkit/issues/124)) ([6142ec9](https://github.com/databricks/appkit/commit/6142ec956b996b6edb7e71379328ec42be4a2aa9))
