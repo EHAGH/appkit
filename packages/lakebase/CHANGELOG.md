@@ -2,6 +2,12 @@
 
 All notable changes to @databricks/lakebase will be documented in this file.
 
+## [0.2.0](https://github.com/databricks/appkit/compare/lakebase-v0.1.2...lakebase-v0.2.0) (2026-02-24)
+
+### Features
+
+* **lakebase:** add ability to lookup DB username with API ([#123](https://github.com/databricks/appkit/issues/123)) ([1af3f64](https://github.com/databricks/appkit/commit/1af3f6479eb5d71e4bbbd57cbd070d9e88ce23aa))
+
 ## [0.1.2](https://github.com/databricks/appkit/compare/lakebase-v0.1.1...lakebase-v0.1.2) (2026-02-19)
 
 ### Bug Fixes
