@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0](https://github.com/databricks/appkit/compare/v0.9.0...v0.10.0) (2026-02-25)
+
+### lakebase
+
+* **lakebase:** add ability to lookup DB username with API ([#123](https://github.com/databricks/appkit/issues/123)) ([1af3f64](https://github.com/databricks/appkit/commit/1af3f6479eb5d71e4bbbd57cbd070d9e88ce23aa))
+
 ## [0.9.0](https://github.com/databricks/appkit/compare/v0.8.0...v0.9.0) (2026-02-24)
 
 * add plugin commands ([#110](https://github.com/databricks/appkit/issues/110)) ([ec5481d](https://github.com/databricks/appkit/commit/ec5481dea46c5a6f2d85e5942e31fa0582caefbe))
