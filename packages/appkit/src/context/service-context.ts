@@ -24,8 +24,8 @@ export interface ServiceContextState {
   client: WorkspaceClient;
   /** The service principal's user ID */
   serviceUserId: string;
-  /** Promise that resolves to the warehouse ID */
-  warehouseId: Promise<string>;
+  /** Promise that resolves to the warehouse ID (only present when a plugin requires `SQL_WAREHOUSE` resource) */
+  warehouseId?: Promise<string>;
   /** Promise that resolves to the workspace ID */
   workspaceId: Promise<string>;
 }
@@ -58,10 +58,12 @@ export class ServiceContext {
    * Initialize the service context. Should be called once at app startup.
    * Safe to call multiple times - will return the same instance.
    *
+   * @param options - Which shared resources to resolve (derived from plugin manifests).
    * @param client - Optional pre-configured WorkspaceClient to use instead
    *   of creating one from environment credentials.
    */
   static async initialize(
+    options?: { warehouseId?: boolean },
     client?: WorkspaceClient,
   ): Promise<ServiceContextState> {
     if (ServiceContext.instance) {
@@ -72,7 +74,7 @@ export class ServiceContext {
       return ServiceContext.initPromise;
     }
 
-    ServiceContext.initPromise = ServiceContext.createContext(client);
+    ServiceContext.initPromise = ServiceContext.createContext(options, client);
     ServiceContext.instance = await ServiceContext.initPromise;
     return ServiceContext.instance;
   }
@@ -153,11 +155,15 @@ export class ServiceContext {
   }
 
   private static async createContext(
+    options?: { warehouseId?: boolean },
     client?: WorkspaceClient,
   ): Promise<ServiceContextState> {
     const wsClient = client ?? new WorkspaceClient({}, getClientOptions());
 
-    const warehouseId = ServiceContext.getWarehouseId(wsClient);
+    const warehouseId = options?.warehouseId
+      ? ServiceContext.getWarehouseId(wsClient)
+      : undefined;
+
     const workspaceId = ServiceContext.getWorkspaceId(wsClient);
     const currentUser = await wsClient.currentUser.me();
 

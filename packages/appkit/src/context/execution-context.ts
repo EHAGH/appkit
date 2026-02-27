@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { ConfigurationError } from "../errors";
 import { ServiceContext } from "./service-context";
 import {
   type ExecutionContext,
@@ -64,7 +65,14 @@ export function getWorkspaceClient() {
  * Get the warehouse ID promise.
  */
 export function getWarehouseId(): Promise<string> {
-  return getExecutionContext().warehouseId;
+  const ctx = getExecutionContext();
+  if (!ctx.warehouseId) {
+    throw ConfigurationError.resourceNotFound(
+      "Warehouse ID",
+      "No plugin requires a SQL Warehouse. Add a sql_warehouse resource to your plugin manifest, or set DATABRICKS_WAREHOUSE_ID",
+    );
+  }
+  return ctx.warehouseId;
 }
 
 /**

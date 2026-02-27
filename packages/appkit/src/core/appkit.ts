@@ -10,7 +10,7 @@ import type {
 } from "shared";
 import { CacheManager } from "../cache";
 import { ServiceContext } from "../context";
-import { ResourceRegistry } from "../registry";
+import { ResourceRegistry, ResourceType } from "../registry";
 import type { TelemetryConfig } from "../telemetry";
 import { TelemetryManager } from "../telemetry";
 
@@ -148,14 +148,22 @@ export class AppKit<TPlugins extends InputPluginMap> {
     TelemetryManager.initialize(config?.telemetry);
     await CacheManager.getInstance(config?.cache);
 
-    // Initialize ServiceContext for Databricks client management
-    // This provides the service principal client and shared resources
-    await ServiceContext.initialize(config?.client);
-
     const rawPlugins = config.plugins as T;
 
+    // Collect manifest resources via registry
     const registry = new ResourceRegistry();
     registry.collectResources(rawPlugins);
+
+    // Derive ServiceContext needs from what manifests declared
+    const needsWarehouse = registry
+      .getRequired()
+      .some((r) => r.type === ResourceType.SQL_WAREHOUSE);
+    await ServiceContext.initialize(
+      { warehouseId: needsWarehouse },
+      config?.client,
+    );
+
+    // Validate env vars
     registry.enforceValidation();
 
     const preparedPlugins = AppKit.preparePlugins(rawPlugins);
