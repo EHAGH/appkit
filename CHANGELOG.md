@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.2](https://github.com/databricks/appkit/compare/v0.11.1...v0.11.2) (2026-02-27)
+
+* make warehouseId optional in ServiceContext when no plugin requires it ([#91](https://github.com/databricks/appkit/issues/91)) ([ee6aa2b](https://github.com/databricks/appkit/commit/ee6aa2bcb3cf54789adb7a10426f700e60c672af))
+
 ## [0.11.1](https://github.com/databricks/appkit/compare/v0.11.0...v0.11.1) (2026-02-26)
 
 * handle array-returning Vite plugins in mergeConfigDedup ([#89](https://github.com/databricks/appkit/issues/89)) ([a9c3c1d](https://github.com/databricks/appkit/commit/a9c3c1d90f124053b468d0534b70e20531a718c2))
