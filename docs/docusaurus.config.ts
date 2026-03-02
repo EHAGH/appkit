@@ -164,6 +164,28 @@ const config: Config = {
           siteDescription:
             "Node.js + React SDK for Databricks Apps. Built for humans and AI.",
           enableLlmsFullTxt: true,
+          autoSectionDepth: 3,
+          autoSectionPosition: 2,
+          sections: [
+            {
+              id: "docs",
+              name: "General docs",
+              position: 1,
+              routes: [{ route: "/appkit/docs/*" }],
+            },
+            {
+              id: "appkit-api",
+              name: "appkit API reference [collapsed]",
+              position: 100,
+              routes: [{ route: "/appkit/docs/api/appkit/**" }],
+            },
+            {
+              id: "appkit-ui-api",
+              name: "appkit-ui API reference [collapsed]",
+              position: 101,
+              routes: [{ route: "/appkit/docs/api/appkit-ui/**" }],
+            },
+          ],
         },
         ui: {
           copyPageContent: {
