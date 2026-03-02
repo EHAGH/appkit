@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0](https://github.com/databricks/appkit/compare/v0.11.2...v0.12.0) (2026-03-02)
+
+### appkit
+
+* **appkit:** add Genie plugin for AI/BI space integration ([#108](https://github.com/databricks/appkit/issues/108)) ([c3581d5](https://github.com/databricks/appkit/commit/c3581d59dfaa97dc7a80245df03d3b13f2d4bb17)), closes [#116](https://github.com/databricks/appkit/issues/116)
+
 ## [0.11.2](https://github.com/databricks/appkit/compare/v0.11.1...v0.11.2) (2026-02-27)
 
 * make warehouseId optional in ServiceContext when no plugin requires it ([#91](https://github.com/databricks/appkit/issues/91)) ([ee6aa2b](https://github.com/databricks/appkit/commit/ee6aa2bcb3cf54789adb7a10426f700e60c672af))
