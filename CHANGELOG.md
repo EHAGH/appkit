@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.1](https://github.com/databricks/appkit/compare/v0.12.0...v0.12.1) (2026-03-02)
+
+* improve `llms.txt` path generation for docs embedded in the NPM packages ([#142](https://github.com/databricks/appkit/issues/142)) ([c03dceb](https://github.com/databricks/appkit/commit/c03dceb0bb904692d0c30330d676f356ee833b34))
+
 ## [0.12.0](https://github.com/databricks/appkit/compare/v0.11.2...v0.12.0) (2026-03-02)
 
 ### appkit
