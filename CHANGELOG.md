@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.0](https://github.com/databricks/appkit/compare/v0.13.0...v0.14.0) (2026-03-03)
+
+* reference databricks skills on claude file ([#151](https://github.com/databricks/appkit/issues/151)) ([7920136](https://github.com/databricks/appkit/commit/7920136822c469c54978862118f692fa95725ac2))
+
 ## [0.13.0](https://github.com/databricks/appkit/compare/v0.12.2...v0.13.0) (2026-03-03)
 
 * add genie to template ([#153](https://github.com/databricks/appkit/issues/153)) ([bdf815a](https://github.com/databricks/appkit/commit/bdf815a87ac2a11ef1cee0618af74c8c95f66ae1))
