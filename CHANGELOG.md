@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.2](https://github.com/databricks/appkit/compare/v0.12.1...v0.12.2) (2026-03-03)
+
+* sdk import ([#149](https://github.com/databricks/appkit/issues/149)) ([9e1b52d](https://github.com/databricks/appkit/commit/9e1b52db63988466d28a886c44b8cf386cdd5696))
+
 ## [0.12.1](https://github.com/databricks/appkit/compare/v0.12.0...v0.12.1) (2026-03-02)
 
 * improve `llms.txt` path generation for docs embedded in the NPM packages ([#142](https://github.com/databricks/appkit/issues/142)) ([c03dceb](https://github.com/databricks/appkit/commit/c03dceb0bb904692d0c30330d676f356ee833b34))
