@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.13.0](https://github.com/databricks/appkit/compare/v0.12.2...v0.13.0) (2026-03-03)
+
+* add genie to template ([#153](https://github.com/databricks/appkit/issues/153)) ([bdf815a](https://github.com/databricks/appkit/commit/bdf815a87ac2a11ef1cee0618af74c8c95f66ae1))
+
 ## [0.12.2](https://github.com/databricks/appkit/compare/v0.12.1...v0.12.2) (2026-03-03)
 
 * sdk import ([#149](https://github.com/databricks/appkit/issues/149)) ([9e1b52d](https://github.com/databricks/appkit/commit/9e1b52db63988466d28a886c44b8cf386cdd5696))
