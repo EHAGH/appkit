@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.15.0](https://github.com/databricks/appkit/compare/v0.14.1...v0.15.0) (2026-03-05)
+
+* improve dev routes rendering ([#160](https://github.com/databricks/appkit/issues/160)) ([a9df281](https://github.com/databricks/appkit/commit/a9df28186df7ea4c839161be7af9e8648a1d918c))
+
 ## [0.14.1](https://github.com/databricks/appkit/compare/v0.14.0...v0.14.1) (2026-03-04)
 
 * always output valid types ([#152](https://github.com/databricks/appkit/issues/152)) ([b350a46](https://github.com/databricks/appkit/commit/b350a46e8e82a17b56727738722db03a2ca42d84))
