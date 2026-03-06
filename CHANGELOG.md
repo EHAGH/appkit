@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.16.0](https://github.com/databricks/appkit/compare/v0.15.0...v0.16.0) (2026-03-06)
+
+* typegen concurrency ([#156](https://github.com/databricks/appkit/issues/156)) ([2e9d6e5](https://github.com/databricks/appkit/commit/2e9d6e5f4397783c747ed84f071e7e130be4fbd6))
+
 ## [0.15.0](https://github.com/databricks/appkit/compare/v0.14.1...v0.15.0) (2026-03-05)
 
 * improve dev routes rendering ([#160](https://github.com/databricks/appkit/issues/160)) ([a9df281](https://github.com/databricks/appkit/commit/a9df28186df7ea4c839161be7af9e8648a1d918c))
