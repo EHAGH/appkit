@@ -1,6 +1,7 @@
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { WorkspaceClient } from "@databricks/sdk-experimental";
+import pc from "picocolors";
 import { createLogger } from "../logging/logger";
 import { CACHE_VERSION, hashSQL, loadCache, saveCache } from "./cache";
 import { Spinner } from "./spinner";
@@ -12,6 +13,29 @@ import {
 } from "./types";
 
 const logger = createLogger("type-generator:query-registry");
+
+/**
+ * Parse a raw API/SDK error into a structured code + message.
+ * Handles Databricks-style JSON bodies embedded in the message string,
+ * e.g. `Response from server (Bad Request) {"error_code":"...","message":"..."}`.
+ */
+function parseError(raw: string): { code?: string; message: string } {
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (parsed.error_code || parsed.message) {
+        return {
+          code: parsed.error_code,
+          message: parsed.message || raw,
+        };
+      }
+    } catch {
+      // not valid JSON, fall through
+    }
+  }
+  return { message: raw };
+}
 
 /**
  * Extract parameters from a SQL query
@@ -116,19 +140,6 @@ function generateUnknownResultQuery(sql: string, queryName: string): string {
   }`;
 }
 
-function cacheFailedQuery(
-  cache: ReturnType<typeof loadCache>,
-  querySchemas: QuerySchema[],
-  sql: string,
-  queryName: string,
-  sqlHash: string,
-): void {
-  const type = generateUnknownResultQuery(sql, queryName);
-  querySchemas.push({ name: queryName, type });
-  cache.queries[queryName] = { hash: sqlHash, type, retry: true };
-  saveCache(cache);
-}
-
 export function extractParameterTypes(sql: string): Record<string, string> {
   const paramTypes: Record<string, string> = {};
   const regex =
@@ -154,88 +165,246 @@ export function extractParameterTypes(sql: string): Record<string, string> {
 export async function generateQueriesFromDescribe(
   queryFolder: string,
   warehouseId: string,
-  options: { noCache?: boolean } = {},
+  options: { noCache?: boolean; concurrency?: number } = {},
 ): Promise<QuerySchema[]> {
-  const { noCache = false } = options;
+  const { noCache = false, concurrency: rawConcurrency = 10 } = options;
+  const concurrency =
+    typeof rawConcurrency === "number" && Number.isFinite(rawConcurrency)
+      ? Math.max(1, Math.floor(rawConcurrency))
+      : 10;
 
-  // read all query files in the folder
-  const queryFiles = fs
-    .readdirSync(queryFolder)
-    .filter((file) => file.endsWith(".sql"));
+  // read all query files and cache in parallel
+  const [allFiles, cache] = await Promise.all([
+    fs.readdir(queryFolder),
+    noCache
+      ? ({ version: CACHE_VERSION, queries: {} } as Awaited<
+          ReturnType<typeof loadCache>
+        >)
+      : loadCache(),
+  ]);
 
+  const queryFiles = allFiles.filter((file) => file.endsWith(".sql"));
   logger.debug("Found %d SQL queries", queryFiles.length);
 
-  // load cache
-  const cache = noCache ? { version: CACHE_VERSION, queries: {} } : loadCache();
-
   const client = new WorkspaceClient({});
-  const querySchemas: QuerySchema[] = [];
   const spinner = new Spinner();
 
-  // process each query file
+  // Read all SQL files in parallel
+  const sqlContents = await Promise.all(
+    queryFiles.map((file) => fs.readFile(path.join(queryFolder, file), "utf8")),
+  );
+
+  const startTime = performance.now();
+
+  // Phase 1: Check cache, separate cached vs uncached
+  const cachedResults: Array<{ index: number; schema: QuerySchema }> = [];
+  const uncachedQueries: Array<{
+    index: number;
+    queryName: string;
+    sql: string;
+    sqlHash: string;
+    cleanedSql: string;
+  }> = [];
+  const logEntries: Array<{
+    queryName: string;
+    status: "HIT" | "MISS";
+    failed?: boolean;
+    error?: { code?: string; message: string };
+  }> = [];
+
   for (let i = 0; i < queryFiles.length; i++) {
     const file = queryFiles[i];
     const rawName = path.basename(file, ".sql");
     const queryName = normalizeQueryName(rawName);
 
-    // read query file content
-    const sql = fs.readFileSync(path.join(queryFolder, file), "utf8");
+    const sql = sqlContents[i];
     const sqlHash = hashSQL(sql);
 
-    // check cache (skip if marked for retry after a failed DESCRIBE)
     const cached = cache.queries[queryName];
     if (cached && cached.hash === sqlHash && !cached.retry) {
-      querySchemas.push({ name: queryName, type: cached.type });
-      spinner.start(`Processing ${queryName} (${i + 1}/${queryFiles.length})`);
-      spinner.stop(`✓ ${queryName} (cached)`);
-      continue;
+      cachedResults.push({
+        index: i,
+        schema: { name: queryName, type: cached.type },
+      });
+      logEntries.push({ queryName, status: "HIT" });
+    } else {
+      const sqlWithDefaults = sql.replace(/:([a-zA-Z_]\w*)/g, "''");
+      const cleanedSql = sqlWithDefaults.trim().replace(/;\s*$/, "");
+      uncachedQueries.push({ index: i, queryName, sql, sqlHash, cleanedSql });
     }
+  }
 
-    spinner.start(`Processing ${queryName} (${i + 1}/${queryFiles.length})`);
+  // Phase 2: Execute all uncached DESCRIBE calls in parallel
+  type DescribeResult =
+    | {
+        status: "ok";
+        index: number;
+        schema: QuerySchema;
+        cacheEntry: { hash: string; type: string; retry: boolean };
+      }
+    | {
+        status: "fail";
+        index: number;
+        schema: QuerySchema;
+        cacheEntry: { hash: string; type: string; retry: boolean };
+        error: { code?: string; message: string };
+      };
 
-    const sqlWithDefaults = sql.replace(/:([a-zA-Z_]\w*)/g, "''");
+  const freshResults: Array<{ index: number; schema: QuerySchema }> = [];
 
-    // strip trailing semicolon for DESCRIBE QUERY
-    const cleanedSql = sqlWithDefaults.trim().replace(/;\s*$/, "");
+  if (uncachedQueries.length > 0) {
+    let completed = 0;
+    const total = uncachedQueries.length;
+    spinner.start(
+      `Describing ${total} ${total === 1 ? "query" : "queries"} (0/${total})`,
+    );
 
-    // execute DESCRIBE QUERY to get schema without running the actual query
-    try {
+    const describeOne = async ({
+      index,
+      queryName,
+      sql,
+      sqlHash,
+      cleanedSql,
+    }: (typeof uncachedQueries)[number]): Promise<DescribeResult> => {
       const result = (await client.statementExecution.executeStatement({
         statement: `DESCRIBE QUERY ${cleanedSql}`,
         warehouse_id: warehouseId,
       })) as DatabricksStatementExecutionResponse;
 
+      completed++;
+      spinner.update(
+        `Describing ${total} ${total === 1 ? "query" : "queries"} (${completed}/${total})`,
+      );
+
+      logger.debug(
+        "DESCRIBE result for %s: state=%s, rows=%d",
+        queryName,
+        result.status.state,
+        result.result?.data_array?.length ?? 0,
+      );
+
       if (result.status.state === "FAILED") {
         const sqlError =
           result.status.error?.message || "Query execution failed";
-        cacheFailedQuery(cache, querySchemas, sql, queryName, sqlHash);
-        spinner.stop(`✗ ${queryName} - failed`);
-        spinner.printDetail(`SQL Error: ${sqlError}`);
-        spinner.printDetail(`Query: ${cleanedSql.slice(0, 200)}`);
-        continue;
+        logger.warn("DESCRIBE failed for %s: %s", queryName, sqlError);
+        const type = generateUnknownResultQuery(sql, queryName);
+        return {
+          status: "fail",
+          index,
+          schema: { name: queryName, type },
+          cacheEntry: { hash: sqlHash, type, retry: true },
+          error: parseError(sqlError),
+        };
       }
 
-      // convert result to query schema
       const { type, hasResults } = convertToQueryType(result, sql, queryName);
-      querySchemas.push({ name: queryName, type });
+      return {
+        status: "ok",
+        index,
+        schema: { name: queryName, type },
+        cacheEntry: { hash: sqlHash, type, retry: !hasResults },
+      };
+    };
 
-      // update cache immediately so successful results survive partial failures
-      // retry if DESCRIBE returned no columns (result: unknown)
-      const retry = !hasResults;
-      cache.queries[queryName] = { hash: sqlHash, type, retry };
-      saveCache(cache);
+    // Process in chunks, saving cache after each chunk
+    const processBatchResults = (
+      settled: PromiseSettledResult<DescribeResult>[],
+      batchOffset: number,
+    ) => {
+      for (let i = 0; i < settled.length; i++) {
+        const entry = settled[i];
+        const { queryName } = uncachedQueries[batchOffset + i];
 
-      spinner.stop(`✓ ${queryName}`);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      spinner.stop(`✗ ${queryName}`);
-      spinner.printDetail(errorMessage);
-      cacheFailedQuery(cache, querySchemas, sql, queryName, sqlHash);
+        if (entry.status === "fulfilled") {
+          const res = entry.value;
+          freshResults.push({ index: res.index, schema: res.schema });
+          cache.queries[queryName] = res.cacheEntry;
+          logEntries.push({
+            queryName,
+            status: "MISS",
+            failed: res.status === "fail",
+            error: res.status === "fail" ? res.error : undefined,
+          });
+        } else {
+          const { sql, sqlHash, index } = uncachedQueries[batchOffset + i];
+          const reason =
+            entry.reason instanceof Error
+              ? entry.reason.message
+              : String(entry.reason);
+          logger.warn("DESCRIBE rejected for %s: %s", queryName, reason);
+          const type = generateUnknownResultQuery(sql, queryName);
+          freshResults.push({ index, schema: { name: queryName, type } });
+          cache.queries[queryName] = { hash: sqlHash, type, retry: true };
+          logEntries.push({
+            queryName,
+            status: "MISS",
+            failed: true,
+            error: parseError(reason),
+          });
+        }
+      }
+    };
+
+    if (uncachedQueries.length > concurrency) {
+      for (let b = 0; b < uncachedQueries.length; b += concurrency) {
+        const batch = uncachedQueries.slice(b, b + concurrency);
+        const batchResults = await Promise.allSettled(batch.map(describeOne));
+        processBatchResults(batchResults, b);
+        await saveCache(cache);
+      }
+    } else {
+      const settled = await Promise.allSettled(
+        uncachedQueries.map(describeOne),
+      );
+      processBatchResults(settled, 0);
+      await saveCache(cache);
     }
+
+    spinner.stop("");
   }
 
-  return querySchemas;
+  const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+
+  // Print formatted table
+  if (logEntries.length > 0) {
+    const maxNameLen = Math.max(...logEntries.map((e) => e.queryName.length));
+    const separator = pc.dim("─".repeat(50));
+    console.log("");
+    console.log(
+      `  ${pc.bold("Typegen Queries")} ${pc.dim(`(${logEntries.length})`)}`,
+    );
+    console.log(`  ${separator}`);
+    for (const entry of logEntries) {
+      const tag = entry.failed
+        ? pc.bold(pc.red("ERROR"))
+        : entry.status === "HIT"
+          ? `cache ${pc.bold(pc.green("HIT  "))}`
+          : `cache ${pc.bold(pc.yellow("MISS "))}`;
+      const rawName = entry.queryName.padEnd(maxNameLen);
+      const name = entry.failed ? pc.dim(pc.strikethrough(rawName)) : rawName;
+      const errorCode = entry.error?.message.match(/\[([^\]]+)\]/)?.[1];
+      const reason = errorCode ? `  ${pc.dim(errorCode)}` : "";
+      console.log(`  ${tag}  ${name}${reason}`);
+    }
+    const newCount = logEntries.filter(
+      (e) => e.status === "MISS" && !e.failed,
+    ).length;
+    const cacheCount = logEntries.filter(
+      (e) => e.status === "HIT" && !e.failed,
+    ).length;
+    const errorCount = logEntries.filter((e) => e.failed).length;
+    console.log(`  ${separator}`);
+    const parts = [`${newCount} new`, `${cacheCount} from cache`];
+    if (errorCount > 0)
+      parts.push(`${errorCount} ${errorCount === 1 ? "error" : "errors"}`);
+    console.log(`  ${parts.join(", ")}. ${pc.dim(`${elapsed}s`)}`);
+    console.log("");
+  }
+
+  // Merge and sort by original file index for deterministic output
+  return [...cachedResults, ...freshResults]
+    .sort((a, b) => a.index - b.index)
+    .map((r) => r.schema);
 }
 
 /**

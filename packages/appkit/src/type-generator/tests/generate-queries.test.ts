@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  readdirSync: vi.fn(),
-  readFileSync: vi.fn(),
+  readdir: vi.fn(),
+  readFile: vi.fn(),
   executeStatement: vi.fn(),
   spinnerStop: vi.fn(),
   spinnerPrintDetail: vi.fn(),
@@ -10,10 +10,10 @@ const mocks = vi.hoisted(() => ({
   saveCache: vi.fn(),
 }));
 
-vi.mock("node:fs", () => ({
+vi.mock("node:fs/promises", () => ({
   default: {
-    readdirSync: mocks.readdirSync,
-    readFileSync: mocks.readFileSync,
+    readdir: mocks.readdir,
+    readFile: mocks.readFile,
   },
 }));
 
@@ -26,6 +26,7 @@ vi.mock("@databricks/sdk-experimental", () => ({
 vi.mock("../spinner", () => ({
   Spinner: vi.fn(() => ({
     start: vi.fn(),
+    update: vi.fn(),
     stop: mocks.spinnerStop,
     printDetail: mocks.spinnerPrintDetail,
   })),
@@ -52,8 +53,8 @@ describe("generateQueriesFromDescribe", () => {
   });
 
   test("success path — returns query schema", async () => {
-    mocks.readdirSync.mockReturnValue(["users.sql"]);
-    mocks.readFileSync.mockReturnValue(
+    mocks.readdir.mockResolvedValue(["users.sql"]);
+    mocks.readFile.mockResolvedValue(
       "SELECT id, name FROM users WHERE status = :status",
     );
     mocks.executeStatement.mockResolvedValue(
@@ -69,13 +70,13 @@ describe("generateQueriesFromDescribe", () => {
     expect(schemas[0].name).toBe("users");
     expect(schemas[0].type).toContain("id: number");
     expect(schemas[0].type).toContain("name: string");
-    expect(mocks.spinnerStop).toHaveBeenCalledWith("✓ users");
+    expect(mocks.spinnerStop).toHaveBeenCalledWith("");
     expect(mocks.saveCache).toHaveBeenCalledTimes(1);
   });
 
   test("FAILED status with error message — reports SQL error and produces unknown result type", async () => {
-    mocks.readdirSync.mockReturnValue(["bad_table.sql"]);
-    mocks.readFileSync.mockReturnValue("SELECT * FROM bad_table");
+    mocks.readdir.mockResolvedValue(["bad_table.sql"]);
+    mocks.readFile.mockResolvedValue("SELECT * FROM bad_table");
     mocks.executeStatement.mockResolvedValue({
       statement_id: "stmt-2",
       status: {
@@ -89,19 +90,13 @@ describe("generateQueriesFromDescribe", () => {
     expect(schemas).toHaveLength(1);
     expect(schemas[0].name).toBe("bad_table");
     expect(schemas[0].type).toContain("result: unknown");
-    expect(mocks.spinnerStop).toHaveBeenCalledWith("✗ bad_table - failed");
-    expect(mocks.spinnerPrintDetail).toHaveBeenCalledWith(
-      "SQL Error: Table or view not found: bad_table",
-    );
-    expect(mocks.spinnerPrintDetail).toHaveBeenCalledWith(
-      expect.stringContaining("Query:"),
-    );
+    expect(mocks.spinnerStop).toHaveBeenCalledWith("");
     expect(mocks.saveCache).toHaveBeenCalledTimes(1);
   });
 
   test("FAILED status without error message — uses fallback message and produces unknown result type", async () => {
-    mocks.readdirSync.mockReturnValue(["query.sql"]);
-    mocks.readFileSync.mockReturnValue("SELECT 1");
+    mocks.readdir.mockResolvedValue(["query.sql"]);
+    mocks.readFile.mockResolvedValue("SELECT 1");
     mocks.executeStatement.mockResolvedValue({
       statement_id: "stmt-3",
       status: { state: "FAILED" },
@@ -112,18 +107,15 @@ describe("generateQueriesFromDescribe", () => {
     expect(schemas).toHaveLength(1);
     expect(schemas[0].name).toBe("query");
     expect(schemas[0].type).toContain("result: unknown");
-    expect(mocks.spinnerStop).toHaveBeenCalledWith("✗ query - failed");
-    expect(mocks.spinnerPrintDetail).toHaveBeenCalledWith(
-      "SQL Error: Query execution failed",
-    );
+    expect(mocks.spinnerStop).toHaveBeenCalledWith("");
     expect(mocks.saveCache).toHaveBeenCalledTimes(1);
   });
 
   test("partial failure — caches success, unknown result for failure, output includes both", async () => {
-    mocks.readdirSync.mockReturnValue(["good.sql", "bad.sql"]);
-    mocks.readFileSync
-      .mockReturnValueOnce("SELECT id FROM good_table WHERE status = :status")
-      .mockReturnValueOnce("SELECT * FROM missing_table");
+    mocks.readdir.mockResolvedValue(["good.sql", "bad.sql"]);
+    mocks.readFile
+      .mockResolvedValueOnce("SELECT id FROM good_table WHERE status = :status")
+      .mockResolvedValueOnce("SELECT * FROM missing_table");
 
     mocks.executeStatement
       .mockResolvedValueOnce(succeededResult([["id", "INT", null]]))
@@ -147,15 +139,15 @@ describe("generateQueriesFromDescribe", () => {
     expect(schemas[1].name).toBe("bad");
     expect(schemas[1].type).toContain("result: unknown");
 
-    // saveCache called for both queries (success + failure with retry: true)
-    expect(mocks.saveCache).toHaveBeenCalledTimes(2);
+    // saveCache called once after all parallel queries complete
+    expect(mocks.saveCache).toHaveBeenCalledTimes(1);
   });
 
   test("all queries fail — caches with retry flag, all unknown result types", async () => {
-    mocks.readdirSync.mockReturnValue(["a.sql", "b.sql"]);
-    mocks.readFileSync
-      .mockReturnValueOnce("SELECT * FROM table_a")
-      .mockReturnValueOnce("SELECT * FROM table_b");
+    mocks.readdir.mockResolvedValue(["a.sql", "b.sql"]);
+    mocks.readFile
+      .mockResolvedValueOnce("SELECT * FROM table_a")
+      .mockResolvedValueOnce("SELECT * FROM table_b");
 
     mocks.executeStatement
       .mockRejectedValueOnce(new Error("Connection refused"))
@@ -172,12 +164,39 @@ describe("generateQueriesFromDescribe", () => {
     expect(schemas[1].name).toBe("b");
     expect(schemas[1].type).toContain("result: unknown");
 
+    // saveCache called once after all parallel queries complete
+    expect(mocks.saveCache).toHaveBeenCalledTimes(1);
+  });
+
+  test("concurrency batching — saves cache after each batch", async () => {
+    // 3 queries with concurrency=2 → 2 batches (2 + 1), saveCache called twice
+    mocks.readdir.mockResolvedValue(["q1.sql", "q2.sql", "q3.sql"]);
+    mocks.readFile
+      .mockResolvedValueOnce("SELECT id FROM t1")
+      .mockResolvedValueOnce("SELECT id FROM t2")
+      .mockResolvedValueOnce("SELECT id FROM t3");
+
+    mocks.executeStatement
+      .mockResolvedValueOnce(succeededResult([["id", "INT", null]]))
+      .mockResolvedValueOnce(succeededResult([["id", "INT", null]]))
+      .mockResolvedValueOnce(succeededResult([["id", "INT", null]]));
+
+    const schemas = await generateQueriesFromDescribe("/queries", "wh-123", {
+      concurrency: 2,
+    });
+
+    expect(schemas).toHaveLength(3);
+    expect(schemas[0].name).toBe("q1");
+    expect(schemas[1].name).toBe("q2");
+    expect(schemas[2].name).toBe("q3");
+
+    // 2 batches → 2 saveCache calls
     expect(mocks.saveCache).toHaveBeenCalledTimes(2);
   });
 
   test("unknown result type includes parameters from SQL", async () => {
-    mocks.readdirSync.mockReturnValue(["parameterized.sql"]);
-    mocks.readFileSync.mockReturnValue(
+    mocks.readdir.mockResolvedValue(["parameterized.sql"]);
+    mocks.readFile.mockResolvedValue(
       "-- @param status STRING\nSELECT * FROM t WHERE status = :status AND org = :org",
     );
     mocks.executeStatement.mockRejectedValueOnce(new Error("timeout"));
