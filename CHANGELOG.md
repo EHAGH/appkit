@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.18.0](https://github.com/databricks/appkit/compare/v0.17.0...v0.18.0) (2026-03-10)
+
+### genie
+
+* **genie:** add automatic chart visualization for query results ([#146](https://github.com/databricks/appkit/issues/146)) ([3ce8bcc](https://github.com/databricks/appkit/commit/3ce8bcc0ed4978b06f9aac53325a00cedf3772fa)), closes [#145](https://github.com/databricks/appkit/issues/145)
+
 ## [0.17.0](https://github.com/databricks/appkit/compare/v0.16.0...v0.17.0) (2026-03-10)
 
 * lazy loading for Genie conversations ([#163](https://github.com/databricks/appkit/issues/163)) ([5dc8759](https://github.com/databricks/appkit/commit/5dc87594325222ab498bf9310318e464a48f4b1e))
