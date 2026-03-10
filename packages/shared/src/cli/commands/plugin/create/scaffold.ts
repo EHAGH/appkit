@@ -124,9 +124,7 @@ export function scaffoldPlugin(
 import manifest from "./manifest.json";
 
 export class ${className} extends Plugin {
-  name = "${answers.name}";
-
-  static manifest = manifest as PluginManifest;
+  static manifest = manifest as PluginManifest<"${answers.name}">;
 
   injectRoutes(router: IAppRouter): void {
     // Add your routes here, e.g.:
@@ -141,11 +139,7 @@ export class ${className} extends Plugin {
   }
 }
 
-export const ${exportName} = toPlugin<
-  typeof ${className},
-  Record<string, never>,
-  "${answers.name}"
->(${className}, "${answers.name}");
+export const ${exportName} = toPlugin(${className});
 `;
 
     writeTracked(path.join(targetDir, `${answers.name}.ts`), pluginTs, written);

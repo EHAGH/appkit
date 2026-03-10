@@ -18,9 +18,7 @@ import type {
 const logger = createLogger("genie");
 
 export class GeniePlugin extends Plugin {
-  name = "genie";
-
-  static manifest = manifest as PluginManifest;
+  static manifest = manifest as PluginManifest<"genie">;
 
   protected static description =
     "AI/BI Genie space integration for natural language data queries";
@@ -238,7 +236,4 @@ export class GeniePlugin extends Plugin {
 /**
  * @internal
  */
-export const genie = toPlugin<typeof GeniePlugin, IGenieConfig, "genie">(
-  GeniePlugin,
-  "genie",
-);
+export const genie = toPlugin(GeniePlugin);

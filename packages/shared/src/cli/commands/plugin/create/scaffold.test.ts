@@ -100,7 +100,7 @@ describe("scaffold", () => {
         "utf-8",
       );
       expect(pluginTs).toContain("class MyPlugin");
-      expect(pluginTs).toContain("export const myPlugin = toPlugin");
+      expect(pluginTs).toContain("export const myPlugin = toPlugin(MyPlugin)");
       expect(pluginTs).toContain('import manifest from "./manifest.json"');
       expect(pluginTs).toContain("manifest as PluginManifest");
     });

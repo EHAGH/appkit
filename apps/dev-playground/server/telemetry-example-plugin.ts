@@ -8,6 +8,7 @@ import {
   type Counter,
   type Histogram,
   Plugin,
+  type PluginManifest,
   SeverityNumber,
   type Span,
   SpanStatusCode,
@@ -16,8 +17,6 @@ import {
 import type { Request, Response, Router } from "express";
 
 class TelemetryExamples extends Plugin {
-  public name = "telemetry-examples" as const;
-
   static manifest = {
     name: "telemetry-examples",
     displayName: "Telemetry Examples Plugin",
@@ -26,7 +25,7 @@ class TelemetryExamples extends Plugin {
       required: [],
       optional: [],
     },
-  };
+  } satisfies PluginManifest<"telemetry-examples">;
 
   private requestCounter: Counter;
   private durationHistogram: Histogram;
@@ -522,8 +521,4 @@ class TelemetryExamples extends Plugin {
   }
 }
 
-export const telemetryExamples = toPlugin<
-  typeof TelemetryExamples,
-  BasePluginConfig,
-  "telemetryExamples"
->(TelemetryExamples, "telemetryExamples");
+export const telemetryExamples = toPlugin(TelemetryExamples);

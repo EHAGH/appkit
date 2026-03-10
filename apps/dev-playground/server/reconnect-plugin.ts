@@ -1,4 +1,4 @@
-import { Plugin, toPlugin } from "@databricks/appkit";
+import { Plugin, type PluginManifest, toPlugin } from "@databricks/appkit";
 import type { IAppRouter, StreamExecutionSettings } from "shared";
 
 interface ReconnectResponse {
@@ -14,8 +14,6 @@ interface ReconnectStreamResponse {
 }
 
 export class ReconnectPlugin extends Plugin {
-  public name = "reconnect";
-
   static manifest = {
     name: "reconnect",
     displayName: "Reconnect Plugin",
@@ -24,7 +22,7 @@ export class ReconnectPlugin extends Plugin {
       required: [],
       optional: [],
     },
-  };
+  } satisfies PluginManifest<"reconnect">;
 
   injectRoutes(router: IAppRouter): void {
     this.route<ReconnectResponse>(router, {
@@ -84,8 +82,4 @@ export class ReconnectPlugin extends Plugin {
   }
 }
 
-export const reconnect = toPlugin<
-  typeof ReconnectPlugin,
-  Record<string, never>,
-  "reconnect"
->(ReconnectPlugin, "reconnect");
+export const reconnect = toPlugin(ReconnectPlugin);

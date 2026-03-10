@@ -27,10 +27,8 @@ import type {
 const logger = createLogger("analytics");
 
 export class AnalyticsPlugin extends Plugin {
-  name = "analytics";
-
   /** Plugin manifest declaring metadata and resource requirements */
-  static manifest = manifest as PluginManifest;
+  static manifest = manifest as PluginManifest<"analytics">;
 
   protected static description = "Analytics plugin for data analysis";
   protected declare config: IAnalyticsConfig;
@@ -286,8 +284,4 @@ export class AnalyticsPlugin extends Plugin {
 /**
  * @internal
  */
-export const analytics = toPlugin<
-  typeof AnalyticsPlugin,
-  IAnalyticsConfig,
-  "analytics"
->(AnalyticsPlugin, "analytics");
+export const analytics = toPlugin(AnalyticsPlugin);

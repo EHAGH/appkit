@@ -31,10 +31,8 @@ const logger = createLogger("lakebase");
  * ```
  */
 export class LakebasePlugin extends Plugin {
-  name = "lakebase";
-
   /** Plugin manifest declaring metadata and resource requirements */
-  static manifest = manifest as PluginManifest;
+  static manifest = manifest as PluginManifest<"lakebase">;
 
   protected declare config: ILakebaseConfig;
   private pool: Pool | null = null;
@@ -118,8 +116,4 @@ export class LakebasePlugin extends Plugin {
 /**
  * @internal
  */
-export const lakebase = toPlugin<
-  typeof LakebasePlugin,
-  ILakebaseConfig,
-  "lakebase"
->(LakebasePlugin, "lakebase");
+export const lakebase = toPlugin(LakebasePlugin);
