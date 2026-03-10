@@ -9,6 +9,7 @@ export type {
 export type GenieChatStatus =
   | "idle"
   | "loading-history"
+  | "loading-older"
   | "streaming"
   | "error";
 
@@ -40,6 +41,12 @@ export interface UseGenieChatReturn {
   error: string | null;
   sendMessage: (content: string) => void;
   reset: () => void;
+  /** Whether a previous page of older messages exists */
+  hasPreviousPage: boolean;
+  /** Whether a previous page is currently being fetched */
+  isFetchingPreviousPage: boolean;
+  /** Fetch the previous page of older messages */
+  fetchPreviousPage: () => void;
 }
 
 export interface GenieChatProps {

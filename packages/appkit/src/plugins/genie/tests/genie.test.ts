@@ -6,6 +6,7 @@ import {
   setupDatabricksEnv,
 } from "@tools/test-helpers";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { genieConnectorDefaults } from "../../../connectors/genie/defaults";
 import { ServiceContext } from "../../../context/service-context";
 import { Plugin } from "../../../plugin";
 import { GeniePlugin, genie } from "../genie";
@@ -584,7 +585,7 @@ describe("Genie Plugin", () => {
         expect.objectContaining({
           space_id: "test-space-id",
           conversation_id: "conv-123",
-          page_size: 100,
+          page_size: genieConnectorDefaults.initialPageSize,
         }),
       );
 
@@ -596,6 +597,9 @@ describe("Genie Plugin", () => {
         allWritten.match(/"type":"message_result"/g) || []
       ).length;
       expect(messageResultCount).toBe(2);
+
+      // Should have history_info event
+      expect(allWritten).toContain("history_info");
 
       // Should contain message content
       expect(allWritten).toContain("What are the top customers?");
@@ -707,34 +711,20 @@ describe("Genie Plugin", () => {
       expect(mockRes.end).toHaveBeenCalled();
     });
 
-    test("should paginate through all messages", async () => {
-      mockGenieService.listConversationMessages
-        .mockResolvedValueOnce({
-          messages: [
-            {
-              message_id: "msg-1",
-              conversation_id: "conv-123",
-              space_id: "test-space-id",
-              content: "Page 1 message",
-              status: "COMPLETED",
-              attachments: [],
-            },
-          ],
-          next_page_token: "page-2-token",
-        })
-        .mockResolvedValueOnce({
-          messages: [
-            {
-              message_id: "msg-2",
-              conversation_id: "conv-123",
-              space_id: "test-space-id",
-              content: "Page 2 message",
-              status: "COMPLETED",
-              attachments: [],
-            },
-          ],
-          next_page_token: undefined,
-        });
+    test("should fetch only one page and emit history_info with nextPageToken", async () => {
+      mockGenieService.listConversationMessages.mockResolvedValueOnce({
+        messages: [
+          {
+            message_id: "msg-1",
+            conversation_id: "conv-123",
+            space_id: "test-space-id",
+            content: "Most recent message",
+            status: "COMPLETED",
+            attachments: [],
+          },
+        ],
+        next_page_token: "page-2-token",
+      });
 
       const plugin = new GeniePlugin(config);
       const { router, getHandler } = createMockRouter();
@@ -752,36 +742,63 @@ describe("Genie Plugin", () => {
 
       await handler(mockReq, mockRes);
 
+      // Should only fetch one page (lazy loading)
       expect(mockGenieService.listConversationMessages).toHaveBeenCalledTimes(
-        2,
-      );
-
-      // First call without page_token
-      expect(mockGenieService.listConversationMessages).toHaveBeenNthCalledWith(
         1,
-        expect.objectContaining({
-          space_id: "test-space-id",
-          conversation_id: "conv-123",
-          page_size: 100,
-        }),
       );
 
-      // Second call with page_token
-      expect(mockGenieService.listConversationMessages).toHaveBeenNthCalledWith(
-        2,
+      expect(mockGenieService.listConversationMessages).toHaveBeenCalledWith(
         expect.objectContaining({
           space_id: "test-space-id",
           conversation_id: "conv-123",
-          page_size: 100,
-          page_token: "page-2-token",
+          page_size: genieConnectorDefaults.initialPageSize,
         }),
       );
 
       const writeCalls = mockRes.write.mock.calls.map((call: any[]) => call[0]);
       const allWritten = writeCalls.join("");
 
-      expect(allWritten).toContain("Page 1 message");
-      expect(allWritten).toContain("Page 2 message");
+      expect(allWritten).toContain("Most recent message");
+      // history_info should contain the nextPageToken
+      expect(allWritten).toContain("history_info");
+      expect(allWritten).toContain("page-2-token");
+      expect(mockRes.end).toHaveBeenCalled();
+    });
+
+    test("should emit history_info with null nextPageToken when no more pages", async () => {
+      mockMessages([
+        {
+          message_id: "msg-1",
+          conversation_id: "conv-123",
+          space_id: "test-space-id",
+          content: "Only message",
+          status: "COMPLETED",
+          attachments: [],
+        },
+      ]);
+
+      const plugin = new GeniePlugin(config);
+      const { router, getHandler } = createMockRouter();
+
+      plugin.injectRoutes(router);
+
+      const handler = getHandler(
+        "GET",
+        "/:alias/conversations/:conversationId",
+      );
+      const mockReq = createConversationRequest({
+        query: { includeQueryResults: "false" },
+      });
+      const mockRes = createMockResponse();
+
+      await handler(mockReq, mockRes);
+
+      const writeCalls = mockRes.write.mock.calls.map((call: any[]) => call[0]);
+      const allWritten = writeCalls.join("");
+
+      expect(allWritten).toContain("history_info");
+      // nextPageToken should be null
+      expect(allWritten).toContain('"nextPageToken":null');
       expect(mockRes.end).toHaveBeenCalled();
     });
 
@@ -979,6 +996,95 @@ describe("Genie Plugin", () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         error: "Unknown space alias: default",
       });
+    });
+  });
+
+  describe("getConversation with pageToken", () => {
+    test("should pass pageToken through to streamConversation", async () => {
+      mockGenieService.listConversationMessages.mockResolvedValueOnce({
+        messages: [
+          {
+            message_id: "msg-old-1",
+            conversation_id: "conv-123",
+            space_id: "test-space-id",
+            content: "Older message",
+            status: "COMPLETED",
+            attachments: [],
+          },
+        ],
+        next_page_token: "next-token-abc",
+      });
+
+      const plugin = new GeniePlugin(config);
+      const { router, getHandler } = createMockRouter();
+
+      plugin.injectRoutes(router);
+
+      const handler = getHandler(
+        "GET",
+        "/:alias/conversations/:conversationId",
+      );
+      const mockReq = createMockRequest({
+        params: { alias: "myspace", conversationId: "conv-123" },
+        query: { pageToken: "some-page-token" },
+        headers: {
+          "x-forwarded-access-token": "user-token",
+          "x-forwarded-user": "user-1",
+        },
+      });
+      const mockRes = createMockResponse();
+
+      await handler(mockReq, mockRes);
+
+      expect(mockGenieService.listConversationMessages).toHaveBeenCalledWith(
+        expect.objectContaining({
+          space_id: "test-space-id",
+          conversation_id: "conv-123",
+          page_token: "some-page-token",
+        }),
+      );
+
+      const writeCalls = mockRes.write.mock.calls.map((call: any[]) => call[0]);
+      const allWritten = writeCalls.join("");
+
+      expect(allWritten).toContain("Older message");
+      expect(allWritten).toContain("history_info");
+      expect(allWritten).toContain("next-token-abc");
+      expect(mockRes.end).toHaveBeenCalled();
+    });
+
+    test("should yield error event when paginated request fails", async () => {
+      mockGenieService.listConversationMessages.mockRejectedValue(
+        new Error("Page token expired"),
+      );
+
+      const plugin = new GeniePlugin(config);
+      const { router, getHandler } = createMockRouter();
+
+      plugin.injectRoutes(router);
+
+      const handler = getHandler(
+        "GET",
+        "/:alias/conversations/:conversationId",
+      );
+      const mockReq = createMockRequest({
+        params: { alias: "myspace", conversationId: "conv-123" },
+        query: { pageToken: "expired-token" },
+        headers: {
+          "x-forwarded-access-token": "user-token",
+          "x-forwarded-user": "user-1",
+        },
+      });
+      const mockRes = createMockResponse();
+
+      await handler(mockReq, mockRes);
+
+      const writeCalls = mockRes.write.mock.calls.map((call: any[]) => call[0]);
+      const allWritten = writeCalls.join("");
+
+      expect(allWritten).toContain("error");
+      expect(allWritten).toContain("Page token expired");
+      expect(mockRes.end).toHaveBeenCalled();
     });
   });
 

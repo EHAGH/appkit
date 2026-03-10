@@ -96,7 +96,9 @@ export class GeniePlugin extends Plugin {
     );
 
     const timeout = this.config.timeout ?? 120_000;
-    const requestId = (req.query.requestId as string) || randomUUID();
+    const requestId =
+      (typeof req.query.requestId === "string" && req.query.requestId) ||
+      randomUUID();
 
     const streamSettings: StreamExecutionSettings = {
       ...genieStreamDefaults,
@@ -139,14 +141,19 @@ export class GeniePlugin extends Plugin {
     }
 
     const includeQueryResults = req.query.includeQueryResults !== "false";
-    const requestId = (req.query.requestId as string) || randomUUID();
+    const pageToken =
+      typeof req.query.pageToken === "string" ? req.query.pageToken : undefined;
+    const requestId =
+      (typeof req.query.requestId === "string" && req.query.requestId) ||
+      randomUUID();
 
     logger.debug(
-      "Fetching conversation %s from space %s (alias=%s, includeQueryResults=%s)",
+      "Fetching conversation %s from space %s (alias=%s, includeQueryResults=%s, pageToken=%s)",
       conversationId,
       spaceId,
       alias,
       includeQueryResults,
+      pageToken ?? "none",
     );
 
     const streamSettings: StreamExecutionSettings = {
@@ -166,7 +173,7 @@ export class GeniePlugin extends Plugin {
           workspaceClient,
           spaceId,
           conversationId,
-          { includeQueryResults },
+          { includeQueryResults, pageToken },
         ),
       streamSettings,
     );

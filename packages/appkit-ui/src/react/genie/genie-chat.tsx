@@ -12,7 +12,15 @@ export function GenieChat({
   placeholder,
   className,
 }: GenieChatProps) {
-  const { messages, status, error, sendMessage, reset } = useGenieChat({
+  const {
+    messages,
+    status,
+    error,
+    sendMessage,
+    reset,
+    hasPreviousPage,
+    fetchPreviousPage,
+  } = useGenieChat({
     alias,
     basePath,
   });
@@ -32,7 +40,12 @@ export function GenieChat({
         </div>
       )}
 
-      <GenieChatMessageList messages={messages} status={status} />
+      <GenieChatMessageList
+        messages={messages}
+        status={status}
+        hasPreviousPage={hasPreviousPage}
+        onFetchPreviousPage={fetchPreviousPage}
+      />
 
       {error && (
         <div className="shrink-0 px-4 py-2 text-sm text-destructive bg-destructive/10 border-t">

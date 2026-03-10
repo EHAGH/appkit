@@ -14,7 +14,16 @@ export type GenieStreamEvent =
       statementId: string;
       data: unknown;
     }
-  | { type: "error"; error: string };
+  | { type: "error"; error: string }
+  | {
+      type: "history_info";
+      conversationId: string;
+      spaceId: string;
+      /** Opaque token to fetch the next (older) page. Null means no more pages. */
+      nextPageToken: string | null;
+      /** Total messages returned in this initial load */
+      loadedCount: number;
+    };
 
 /** Cleaned response — subset of SDK GenieMessage */
 export interface GenieMessageResponse {
