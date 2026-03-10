@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.17.0](https://github.com/databricks/appkit/compare/v0.16.0...v0.17.0) (2026-03-10)
+
+* lazy loading for Genie conversations ([#163](https://github.com/databricks/appkit/issues/163)) ([5dc8759](https://github.com/databricks/appkit/commit/5dc87594325222ab498bf9310318e464a48f4b1e))
+
 ## [0.16.0](https://github.com/databricks/appkit/compare/v0.15.0...v0.16.0) (2026-03-06)
 
 * typegen concurrency ([#156](https://github.com/databricks/appkit/issues/156)) ([2e9d6e5](https://github.com/databricks/appkit/commit/2e9d6e5f4397783c747ed84f071e7e130be4fbd6))
