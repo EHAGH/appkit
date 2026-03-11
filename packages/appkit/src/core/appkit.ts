@@ -87,16 +87,19 @@ export class AppKit<TPlugins extends InputPluginMap> {
 
   /**
    * Binds all function properties in an exports object to the given context.
+   * Recurses into plain objects to handle nested APIs (e.g., volume APIs).
    */
   private bindExportMethods(
     exports: Record<string, unknown>,
     context: BasePlugin,
   ) {
     for (const key in exports) {
-      if (Object.hasOwn(exports, key) && typeof exports[key] === "function") {
-        exports[key] = (exports[key] as (...args: unknown[]) => unknown).bind(
-          context,
-        );
+      if (!Object.hasOwn(exports, key)) continue;
+      const val = exports[key];
+      if (typeof val === "function") {
+        exports[key] = (val as (...args: unknown[]) => unknown).bind(context);
+      } else if (AppKit.isPlainObject(val)) {
+        this.bindExportMethods(val as Record<string, unknown>, context);
       }
     }
   }
@@ -104,19 +107,30 @@ export class AppKit<TPlugins extends InputPluginMap> {
   /**
    * Wraps a plugin's exports with an `asUser` method that returns
    * a user-scoped version of the exports.
+   *
+   * When `exports()` returns a callable (function), it is returned as-is
+   * since the plugin manages its own `asUser` per-call (e.g. files plugin).
+   * When it returns a plain object, the standard `asUser` wrapper is added.
    */
   private wrapWithAsUser<T extends BasePlugin>(plugin: T) {
     // If plugin doesn't implement exports(), return empty object
-    const pluginExports = (plugin.exports?.() ?? {}) as Record<string, unknown>;
-    this.bindExportMethods(pluginExports, plugin);
+    const pluginExports = plugin.exports?.() ?? {};
 
-    // If plugin doesn't support asUser (no asUser method), return exports as-is
-    if (typeof (plugin as any).asUser !== "function") {
+    // If exports is a function, the plugin manages its own asUser pattern
+    if (typeof pluginExports === "function") {
       return pluginExports;
     }
 
+    const objExports = pluginExports as Record<string, unknown>;
+    this.bindExportMethods(objExports, plugin);
+
+    // If plugin doesn't support asUser (no asUser method), return exports as-is
+    if (typeof (plugin as any).asUser !== "function") {
+      return objExports;
+    }
+
     return {
-      ...pluginExports,
+      ...objExports,
       /**
        * Execute operations using the user's identity from the request.
        * Returns user-scoped exports where all methods execute with the
@@ -132,6 +146,17 @@ export class AppKit<TPlugins extends InputPluginMap> {
         return userExports;
       },
     };
+  }
+
+  /**
+   * Returns true if the value is a plain object (not an array, Date, etc.).
+   */
+  private static isPlainObject(
+    value: unknown,
+  ): value is Record<string, unknown> {
+    if (typeof value !== "object" || value === null) return false;
+    const proto = Object.getPrototypeOf(value);
+    return proto === Object.prototype || proto === null;
   }
 
   static async _createApp<
