@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.19.1](https://github.com/databricks/appkit/compare/v0.19.0...v0.19.1) (2026-03-11)
+
+* improve Genie API error messages for access denied scenarios ([#168](https://github.com/databricks/appkit/issues/168)) ([43d92d6](https://github.com/databricks/appkit/commit/43d92d6c84461bd2271906139cf9cb8282c51431))
+
 ## [0.19.0](https://github.com/databricks/appkit/compare/v0.18.0...v0.19.0) (2026-03-11)
 
 * Files Plugin ([#115](https://github.com/databricks/appkit/issues/115)) ([12760fe](https://github.com/databricks/appkit/commit/12760fefa64f65fbc18f5a7edd76ea4d37d77282))
