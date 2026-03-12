@@ -11,8 +11,15 @@ interface AppKitWithLakebase {
   };
 }
 
+const TABLE_EXISTS_SQL = `
+  SELECT 1 FROM information_schema.tables
+  WHERE table_schema = 'app' AND table_name = 'todos'
+`;
+
+const SETUP_SCHEMA_SQL = `CREATE SCHEMA IF NOT EXISTS app`;
+
 const CREATE_TABLE_SQL = `
-  CREATE TABLE IF NOT EXISTS todos (
+  CREATE TABLE IF NOT EXISTS app.todos (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     completed BOOLEAN NOT NULL DEFAULT false,
@@ -23,13 +30,26 @@ const CREATE_TABLE_SQL = `
 const CreateTodoBody = z.object({ title: z.string().min(1) });
 
 export async function setupSampleLakebaseRoutes(appkit: AppKitWithLakebase) {
-  await appkit.lakebase.query(CREATE_TABLE_SQL);
+  try {
+    const { rows } = await appkit.lakebase.query(TABLE_EXISTS_SQL);
+    if (rows.length > 0) {
+      console.log('[lakebase] Table app.todos already exists, skipping setup');
+    } else {
+      await appkit.lakebase.query(SETUP_SCHEMA_SQL);
+      await appkit.lakebase.query(CREATE_TABLE_SQL);
+      console.log('[lakebase] Created schema and table app.todos');
+    }
+  } catch (err) {
+    console.warn('[lakebase] Database setup failed:', (err as Error).message);
+    console.warn('[lakebase] Routes will be registered but may return errors');
+    console.warn('[lakebase] See https://databricks.github.io/appkit/docs/plugins/lakebase#database-permissions for troubleshooting');
+  }
 
   appkit.server.extend((app) => {
     app.get('/api/lakebase/todos', async (_req, res) => {
       try {
         const result = await appkit.lakebase.query(
-          'SELECT id, title, completed, created_at FROM todos ORDER BY created_at DESC',
+          'SELECT id, title, completed, created_at FROM app.todos ORDER BY created_at DESC',
         );
         res.json(result.rows);
       } catch (err) {
@@ -46,7 +66,7 @@ export async function setupSampleLakebaseRoutes(appkit: AppKitWithLakebase) {
           return;
         }
         const result = await appkit.lakebase.query(
-          'INSERT INTO todos (title) VALUES ($1) RETURNING id, title, completed, created_at',
+          'INSERT INTO app.todos (title) VALUES ($1) RETURNING id, title, completed, created_at',
           [parsed.data.title.trim()],
         );
         res.status(201).json(result.rows[0]);
@@ -64,7 +84,7 @@ export async function setupSampleLakebaseRoutes(appkit: AppKitWithLakebase) {
           return;
         }
         const result = await appkit.lakebase.query(
-          'UPDATE todos SET completed = NOT completed WHERE id = $1 RETURNING id, title, completed, created_at',
+          'UPDATE app.todos SET completed = NOT completed WHERE id = $1 RETURNING id, title, completed, created_at',
           [id],
         );
         if (result.rows.length === 0) {
@@ -86,7 +106,7 @@ export async function setupSampleLakebaseRoutes(appkit: AppKitWithLakebase) {
           return;
         }
         const result = await appkit.lakebase.query(
-          'DELETE FROM todos WHERE id = $1 RETURNING id',
+          'DELETE FROM app.todos WHERE id = $1 RETURNING id',
           [id],
         );
         if (result.rows.length === 0) {

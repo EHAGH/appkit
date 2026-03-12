@@ -5,8 +5,13 @@
  */
 
 export interface ResourceFieldEntry {
-  env: string;
+  env?: string;
   description?: string;
+  bundleIgnore?: boolean;
+  examples?: string[];
+  localOnly?: boolean;
+  value?: string;
+  resolve?: string;
 }
 
 export interface ResourceRequirement {

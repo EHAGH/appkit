@@ -103,9 +103,19 @@ export interface PluginManifest<TName extends string = string> {
  */
 export interface ResourceFieldEntry {
   /** Environment variable name for this field */
-  env: string;
+  env?: string;
   /** Human-readable description for this field */
   description?: string;
+  /** When true, this field is excluded from Databricks bundle configuration (databricks.yml) generation. */
+  bundleIgnore?: boolean;
+  /** Example values showing the expected format for this field */
+  examples?: string[];
+  /** When true, this field is only generated for local .env files. The Databricks Apps platform auto-injects it at deploy time. */
+  localOnly?: boolean;
+  /** Static value for this field. Used when no prompted or resolved value exists. */
+  value?: string;
+  /** Named resolver prefixed by resource type (e.g., 'postgres:host'). The CLI resolves this value during the init prompt flow. */
+  resolve?: string;
 }
 
 /**
