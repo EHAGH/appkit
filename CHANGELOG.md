@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.0](https://github.com/databricks/appkit/compare/v0.19.1...v0.20.0) (2026-03-12)
+
+### appkit
+
+* **appkit:** support Lakebase Autoscaling x Apps integration natively ([#132](https://github.com/databricks/appkit/issues/132)) ([581a453](https://github.com/databricks/appkit/commit/581a4533f29f029b1e1be4e2f4bbe6c619f73ac0))
+
 ## [0.19.1](https://github.com/databricks/appkit/compare/v0.19.0...v0.19.1) (2026-03-11)
 
 * improve Genie API error messages for access denied scenarios ([#168](https://github.com/databricks/appkit/issues/168)) ([43d92d6](https://github.com/databricks/appkit/commit/43d92d6c84461bd2271906139cf9cb8282c51431))
