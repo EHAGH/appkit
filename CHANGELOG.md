@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.1](https://github.com/databricks/appkit/compare/v0.20.0...v0.20.1) (2026-03-13)
+
+### appkit-ui
+
+* **appkit-ui:** improve text selection visibility in genie chat bubbles ([#180](https://github.com/databricks/appkit/issues/180)) ([5e81b7b](https://github.com/databricks/appkit/commit/5e81b7bd8be5e3fbe27c9597f3dbce109819f1bd))
+
 ## [0.20.0](https://github.com/databricks/appkit/compare/v0.19.1...v0.20.0) (2026-03-12)
 
 ### appkit
