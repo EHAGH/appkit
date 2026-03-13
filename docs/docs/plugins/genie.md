@@ -48,6 +48,16 @@ genie({
 
 If you omit `spaces`, the plugin reads `DATABRICKS_GENIE_SPACE_ID` from the environment and registers it under the `default` alias.
 
+### Finding your Genie Space ID
+
+You can find the Space ID from the **About** tab on your Genie space page in Databricks:
+
+<div style={{maxWidth: 400}}>
+
+![Genie Space ID in the About tab](./assets/genie-space-id.png)
+
+</div>
+
 ## Environment variables
 
 | Variable | Description |
@@ -116,6 +126,8 @@ The `@databricks/appkit-ui` package provides ready-to-use React components for G
 ### GenieChat
 
 A full-featured chat interface that handles streaming, history, and reconnection:
+
+![GenieChat component](./assets/genie-chat.png)
 
 ```tsx
 import { GenieChat } from "@databricks/appkit-ui/react";
