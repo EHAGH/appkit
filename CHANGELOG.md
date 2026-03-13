@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.2](https://github.com/databricks/appkit/compare/v0.20.1...v0.20.2) (2026-03-13)
+
+* plugin types ([#181](https://github.com/databricks/appkit/issues/181)) ([832111b](https://github.com/databricks/appkit/commit/832111b6bc53947ed902c30ec74530c4beb6a88d))
+
 ## [0.20.1](https://github.com/databricks/appkit/compare/v0.20.0...v0.20.1) (2026-03-13)
 
 ### appkit-ui
