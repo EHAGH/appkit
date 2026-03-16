@@ -7,9 +7,5 @@ export {
   isInUserContext,
   runInUserContext,
 } from "./execution-context";
-export { ServiceContext, type ServiceContextState } from "./service-context";
-export {
-  type ExecutionContext,
-  isUserContext,
-  type UserContext,
-} from "./user-context";
+export { ServiceContext } from "./service-context";
+export type { UserContext } from "./user-context";
