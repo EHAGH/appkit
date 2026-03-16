@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.3](https://github.com/databricks/appkit/compare/v0.20.2...v0.20.3) (2026-03-16)
+
+* remove leftover test comments ([#185](https://github.com/databricks/appkit/issues/185)) ([a1dda40](https://github.com/databricks/appkit/commit/a1dda406e4a0001c52bea8feb25f4fe1af6ba996))
+
 ## [0.20.2](https://github.com/databricks/appkit/compare/v0.20.1...v0.20.2) (2026-03-13)
 
 * plugin types ([#181](https://github.com/databricks/appkit/issues/181)) ([832111b](https://github.com/databricks/appkit/commit/832111b6bc53947ed902c30ec74530c4beb6a88d))
