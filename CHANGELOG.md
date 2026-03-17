@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.0](https://github.com/databricks/appkit/compare/v0.20.3...v0.21.0) (2026-03-17)
+
+* allow users to change the inferred chart type ([#191](https://github.com/databricks/appkit/issues/191)) ([4c090f3](https://github.com/databricks/appkit/commit/4c090f383380b05aa304831a9bf10228e376e65d))
+
 ## [0.20.3](https://github.com/databricks/appkit/compare/v0.20.2...v0.20.3) (2026-03-16)
 
 * remove leftover test comments ([#185](https://github.com/databricks/appkit/issues/185)) ([a1dda40](https://github.com/databricks/appkit/commit/a1dda406e4a0001c52bea8feb25f4fe1af6ba996))
