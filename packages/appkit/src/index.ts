@@ -54,6 +54,18 @@ export {
   toPlugin,
 } from "./plugin";
 export { analytics, files, genie, lakebase, server, serving } from "./plugins";
+// Files plugin types (for custom policy authoring)
+export type {
+  FileAction,
+  FilePolicy,
+  FilePolicyUser,
+  FileResource,
+} from "./plugins/files/policy";
+export {
+  PolicyDeniedError,
+  READ_ACTIONS,
+  WRITE_ACTIONS,
+} from "./plugins/files/policy";
 export type {
   EndpointConfig,
   ServingEndpointEntry,

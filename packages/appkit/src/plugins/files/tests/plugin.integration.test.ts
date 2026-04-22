@@ -438,17 +438,19 @@ describe("Files Plugin Integration", () => {
     });
   });
 
-  describe("OBO Gateway", () => {
-    test("production: rejects requests without user token with 401", async () => {
-      const response = await fetch(`${baseUrl}/api/files/${VOL}/list`);
+  describe("Service principal execution", () => {
+    test("requests without user token return 401 (policy requires user identity)", async () => {
+      // Use a unique path to avoid cached results from earlier tests
+      const response = await fetch(
+        `${baseUrl}/api/files/${VOL}/list?path=sp-only`,
+      );
 
       expect(response.status).toBe(401);
-      const data = (await response.json()) as { error: string; plugin: string };
-      expect(data.plugin).toBe("files");
-      expect(data.error).toMatch(/token/i);
+      const data = (await response.json()) as { error: string };
+      expect(data.error).toMatch(/x-forwarded-user/);
     });
 
-    test("production: allows requests with valid user token (OBO)", async () => {
+    test("requests with user headers also succeed", async () => {
       mockFilesApi.listDirectoryContents.mockReturnValue(
         (async function* () {
           yield {
@@ -466,51 +468,21 @@ describe("Files Plugin Integration", () => {
       expect(response.status).toBe(200);
     });
 
-    test("development: falls back to service principal when no user token", async () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = "development";
+    test("write operations without explicit policy are denied by default publicRead()", async () => {
+      mockFilesApi.createDirectory.mockResolvedValue(undefined);
 
-      try {
-        mockFilesApi.listDirectoryContents.mockReturnValue(
-          (async function* () {
-            yield {
-              name: "dev-file.txt",
-              path: "/Volumes/catalog/schema/vol/dev-file.txt",
-              is_directory: false,
-            };
-          })(),
-        );
-
-        const response = await fetch(`${baseUrl}/api/files/${VOL}/list`);
-
-        expect(response.status).toBe(200);
-        const data = await response.json();
-        expect(data).toEqual([
-          {
-            name: "dev-file.txt",
-            path: "/Volumes/catalog/schema/vol/dev-file.txt",
-            is_directory: false,
-          },
-        ]);
-      } finally {
-        if (originalEnv === undefined) {
-          delete process.env.NODE_ENV;
-        } else {
-          process.env.NODE_ENV = originalEnv;
-        }
-      }
-    });
-
-    test("production: rejects write operations without user token", async () => {
       const response = await fetch(`${baseUrl}/api/files/${VOL}/mkdir`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ path: "/Volumes/catalog/schema/vol/newdir" }),
+        headers: {
+          ...MOCK_AUTH_HEADERS,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ path: "newdir" }),
       });
 
-      expect(response.status).toBe(401);
-      const data = (await response.json()) as { error: string; plugin: string };
-      expect(data.plugin).toBe("files");
+      expect(response.status).toBe(403);
+      const data = (await response.json()) as { error: string };
+      expect(data.error).toMatch(/Policy denied/);
     });
   });
 
@@ -538,7 +510,9 @@ describe("Files Plugin Integration", () => {
       });
     }
 
-    test(`POST /api/files/${VOL}/upload with content-length over limit returns 413`, async () => {
+    test(`POST /api/files/${VOL}/upload with content-length over limit returns 403 (policy checked before size)`, async () => {
+      // Default publicRead() policy denies uploads. Policy enforcement runs
+      // before the content-length size check, so the response is 403 (not 413).
       const res = await rawPost(
         `/api/files/${VOL}/upload?path=/Volumes/catalog/schema/vol/large.bin`,
         {
@@ -547,10 +521,10 @@ describe("Files Plugin Integration", () => {
         },
       );
 
-      expect(res.status).toBe(413);
+      expect(res.status).toBe(403);
       const data = JSON.parse(res.body) as { error: string; plugin: string };
       expect(data.plugin).toBe("files");
-      expect(data.error).toMatch(/exceeds maximum allowed size/);
+      expect(data.error).toMatch(/Policy denied/);
     });
   });
 
@@ -607,15 +581,14 @@ describe("Files Plugin Integration", () => {
     });
 
     test("ApiError 409 preserves upstream status code", async () => {
-      mockFilesApi.createDirectory.mockRejectedValue(
+      mockFilesApi.getMetadata.mockRejectedValue(
         new MockApiError("Conflict", 409),
       );
 
-      const response = await fetch(`${baseUrl}/api/files/${VOL}/mkdir`, {
-        method: "POST",
-        headers: { ...MOCK_AUTH_HEADERS, "Content-Type": "application/json" },
-        body: JSON.stringify({ path: "/Volumes/catalog/schema/vol/existing" }),
-      });
+      const response = await fetch(
+        `${baseUrl}/api/files/${VOL}/metadata?path=/Volumes/catalog/schema/vol/existing`,
+        { headers: MOCK_AUTH_HEADERS },
+      );
 
       expect(response.status).toBe(409);
       const data = (await response.json()) as {
