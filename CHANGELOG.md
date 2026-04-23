@@ -8,6 +8,15 @@ All notable changes to this project will be documented in this file.
 
 # Changelog
 
+# Changelog
+
+## [0.25.0](https://github.com/databricks/appkit/compare/v0.24.0...v0.25.0) (2026-04-23)
+
+### files
+
+* **files:** per-volume in-app policy enforcement ([#197](https://github.com/databricks/appkit/issues/197)) ([f54dca5](https://github.com/databricks/appkit/commit/f54dca5da5af5368c7bcb18745715b54a99d47e9))
+
+
 ## [0.24.0](https://github.com/databricks/appkit/compare/v0.23.0...v0.24.0) (2026-04-20)
 
 * add AST extraction to serving type generator and move types to shared/ ([#279](https://github.com/databricks/appkit/issues/279)) ([422afb3](https://github.com/databricks/appkit/commit/422afb38aa73f8adb94e091225dc3381bd92cfcd))
