@@ -16,6 +16,17 @@ All notable changes to this project will be documented in this file.
 
 # Changelog
 
+# Changelog
+
+## [0.27.0](https://github.com/databricks/appkit/compare/v0.26.1...v0.27.0) (2026-04-28)
+
+### jobs
+
+* **jobs:** add HTTP routes, validation, streaming, and review fixes ([4e92340](https://github.com/databricks/appkit/commit/4e923408e5ff9248906bae512432b94b0815188e))
+
+* add resource-scoped jobs plugin for Databricks Lakeflow Jobs ([7092d06](https://github.com/databricks/appkit/commit/7092d069cec3a75b8922222a1520e3236e304e1b))
+
+
 ## [0.26.1](https://github.com/databricks/appkit/compare/v0.26.0...v0.26.1) (2026-04-27)
 
 * log execution errors server-side (stream, Lakebase, SQL Warehouse) ([#255](https://github.com/databricks/appkit/issues/255)) ([390d9e5](https://github.com/databricks/appkit/commit/390d9e502f996d217054fa57375ed56fc82e90f2))
