@@ -29,6 +29,10 @@
       "development": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./beta": {
+      "development": "./src/beta.ts",
+      "default": "./dist/beta.js"
+    },
     "./type-generator": {
       "types": "./dist/type-generator/index.d.ts",
       "development": "./src/type-generator/index.ts",
@@ -41,7 +45,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build:package": "pnpm exec tsx ../../tools/generate-registry-types.ts && tsdown --config tsdown.config.ts",
+    "build:package": "pnpm exec tsx ../../tools/generate-registry-types.ts && pnpm exec tsx ../../tools/generate-plugin-entries.ts && tsdown --config tsdown.config.ts",
     "build:watch": "tsdown --config tsdown.config.ts --watch",
     "clean:full": "rm -rf dist node_modules tmp",
     "clean": "rm -rf dist tmp",
@@ -95,6 +99,7 @@
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./beta": "./dist/beta.js",
       "./dist/shared/src/plugin": "./dist/shared/src/plugin.d.ts",
       "./type-generator": "./dist/type-generator/index.js",
       "./package.json": "./package.json"
