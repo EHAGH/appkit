@@ -18,6 +18,15 @@ All notable changes to this project will be documented in this file.
 
 # Changelog
 
+# Changelog
+
+## [0.27.1](https://github.com/databricks/appkit/compare/v0.27.0...v0.27.1) (2026-04-30)
+
+### appkit
+
+* **appkit:** harden SSE response headers in setupHeaders ([#331](https://github.com/databricks/appkit/issues/331)) ([8b90a15](https://github.com/databricks/appkit/commit/8b90a1528fe0d724ae235c6c27130c8103fb072d))
+
+
 ## [0.27.0](https://github.com/databricks/appkit/compare/v0.26.1...v0.27.0) (2026-04-28)
 
 ### jobs
