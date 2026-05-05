@@ -24,6 +24,15 @@ All notable changes to this project will be documented in this file.
 
 # Changelog
 
+# Changelog
+
+## [0.30.0](https://github.com/databricks/appkit/compare/v0.29.0...v0.30.0) (2026-05-05)
+
+### appkit
+
+* **appkit:** improve Databricks auth failure UX at startup ([#342](https://github.com/databricks/appkit/issues/342)) ([ae2ba2c](https://github.com/databricks/appkit/commit/ae2ba2c5a54f3d04a9de54d94de311e71b236fd5))
+
+
 ## [0.29.0](https://github.com/databricks/appkit/compare/v0.28.0...v0.29.0) (2026-05-05)
 
 ### appkit
