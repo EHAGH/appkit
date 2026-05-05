@@ -22,6 +22,15 @@ All notable changes to this project will be documented in this file.
 
 # Changelog
 
+# Changelog
+
+## [0.29.0](https://github.com/databricks/appkit/compare/v0.28.0...v0.29.0) (2026-05-05)
+
+### appkit
+
+* **appkit:** shared agent types and LLM adapter implementations ([#301](https://github.com/databricks/appkit/issues/301)) ([b5b695d](https://github.com/databricks/appkit/commit/b5b695d8e6c8b1162e70661ae6a507c06389b08d))
+
+
 ## [0.28.0](https://github.com/databricks/appkit/compare/v0.27.1...v0.28.0) (2026-04-30)
 
 ### plugin
